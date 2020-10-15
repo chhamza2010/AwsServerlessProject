@@ -23,7 +23,8 @@ frameworkVersion: '2'
 provider:
   name: aws
   runtime: python3.8
-
+custom:
+  tableName: numbers
 # you can overwrite defaults here
 #  stage: dev
 #  region: us-east-1
@@ -59,7 +60,11 @@ provider:
 
 functions:
   hello:
-    handler: handler.hello
+    handler: handler.endpoint
+    events:
+      - http:
+          path: ping
+          method: POST
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -111,3 +116,21 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+
+
+
+resources:
+    Resources:
+
+        # New Code
+        MyDynamoDbTable:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                TableName: ${self:custom.tableName}
+                AttributeDefinitions:
+                    - AttributeName: ID
+                      AttributeType: S
+                KeySchema:
+                    - AttributeName: ID
+                      KeyType: HASH
+                BillingMode: PAY_PER_REQUEST
